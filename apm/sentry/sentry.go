@@ -8,6 +8,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	goSentry "github.com/getsentry/sentry-go"
 	sentryecho "github.com/getsentry/sentry-go/echo"
+	"github.com/labstack/echo/v4"
 	logDump "github.com/sirupsen/logrus"
 )
 
@@ -35,7 +36,7 @@ func New(config goSentry.ClientOptions) {
 	defer goSentry.Flush(2 * time.Second)
 }
 
-func MiddlewareSentry() {
+func MiddlewareSentry(ctx echo.Context) {
 	if hub := sentryecho.GetHubFromContext(ctx); hub != nil {
 		var (
 			userId = fmt.Sprintf("%v", ctx.Get("RequestID"))
@@ -51,8 +52,8 @@ func MiddlewareSentry() {
 
 			hub.Scope().SetTransaction(fmt.Sprintf("%s", ctx.Path()))
 			hub.Scope().SetUser(sentry.User{
-				ID:        userId,
-				IPAddress: m.GetLocalIP(),
+				ID: userId,
+				//	IPAddress: m.GetLocalIP(),
 			})
 			hub.Scope().SetLevel(sentry.LevelError)
 			hub.Scope().SetRequest(ctx.Request())
