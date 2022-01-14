@@ -59,7 +59,7 @@ func MiddlewareSentry(ctx echo.Context) {
 
 		defer span.Finish()
 
-		sentry.ConfigureScope(func(scope *sentry.Scope) {
+		hub.ConfigureScope(func(scope *sentry.Scope) {
 			scope.SetLevel(sentry.LevelError)
 			scope.SetUser(sentry.User{
 				ID: userId,

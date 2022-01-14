@@ -3,6 +3,7 @@ package echo
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"time"
 
@@ -42,6 +43,17 @@ func InitBodyDumpLog() (err error) {
 func Info(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
 	logDump.WithFields(data).Info(message)
 
+	SentryLog(c, breadcumb, data, fmt.Sprintf("%v", message))
+
+}
+
+func Error(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
+	logDump.WithFields(data).Error(message)
+	SentryLog(c, breadcumb, data, fmt.Sprintf("%v", message))
+
+}
+
+func SentryLog(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message string) {
 	if c != nil {
 		if c.Get("UserId") != nil {
 			userId = fmt.Sprintf("%v", fmt.Sprintf("%v", c.Get("UserId")))
@@ -53,12 +65,12 @@ func Info(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, mess
 			hub := sentryecho.GetHubFromContext(c)
 
 			dataBreadcumb := breadcumb
-
+			log.Println(data)
 			dataBreadcumb.Data = data
-			dataBreadcumb.Message = fmt.Sprintf("%v", message)
+			dataBreadcumb.Message = message
 
-			hub.CaptureMessage(fmt.Sprintf("%v", message))
-			hub.AddBreadcrumb(&breadcumb, nil)
+			hub.CaptureMessage(message)
+			sentry.AddBreadcrumb(&breadcumb)
 		}
 	}
 
