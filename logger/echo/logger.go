@@ -42,23 +42,26 @@ func InitBodyDumpLog() (err error) {
 func Info(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
 	logDump.WithFields(data).Info(message)
 
-	if c.Get("UserId") != nil {
-		userId = fmt.Sprintf("%v", fmt.Sprintf("%v", c.Get("UserId")))
-	} else {
-		userId = fmt.Sprintf("%v", c.Get("RequestID"))
+	if c != nil {
+		if c.Get("UserId") != nil {
+			userId = fmt.Sprintf("%v", fmt.Sprintf("%v", c.Get("UserId")))
+		} else {
+			userId = fmt.Sprintf("%v", c.Get("RequestID"))
+		}
+
+		if hub := sentryecho.GetHubFromContext(c); hub != nil {
+			hub := sentryecho.GetHubFromContext(c)
+
+			dataBreadcumb := breadcumb
+
+			dataBreadcumb.Data = data
+			dataBreadcumb.Message = fmt.Sprintf("%v", message)
+
+			hub.CaptureMessage(fmt.Sprintf("%v", message))
+			hub.AddBreadcrumb(&breadcumb, nil)
+		}
 	}
 
-	if hub := sentryecho.GetHubFromContext(c); hub != nil {
-		hub := sentryecho.GetHubFromContext(c)
-
-		dataBreadcumb := breadcumb
-
-		dataBreadcumb.Data = data
-		dataBreadcumb.Message = fmt.Sprintf("%v", message)
-
-		hub.CaptureMessage(fmt.Sprintf("%v", message))
-		hub.AddBreadcrumb(&breadcumb, nil)
-	}
 }
 
 // func Error(data map[string]interface{}, message interface{}) {

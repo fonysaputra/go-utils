@@ -46,19 +46,30 @@ func MiddlewareSentry(ctx echo.Context) {
 			userId = fmt.Sprintf("%v", fmt.Sprintf("%v", ctx.Get("UserId")))
 		}
 
-		if hub := sentryecho.GetHubFromContext(ctx); hub != nil {
+		hub := sentryecho.GetHubFromContext(ctx)
 
-			hub := sentryecho.GetHubFromContext(ctx)
+		hub.Scope().SetTransaction(fmt.Sprintf("%s", ctx.Path()))
+		hub.Scope().SetUser(sentry.User{
+			ID: userId,
+			//	IPAddress: m.GetLocalIP(),
+		})
+		hub.Scope().SetLevel(sentry.LevelError)
+		hub.Scope().SetRequest(ctx.Request())
+		span := sentry.StartSpan(ctx.Request().Context(), ctx.Path(), sentry.TransactionName(hub.Scope().Transaction()))
 
-			hub.Scope().SetTransaction(fmt.Sprintf("%s", ctx.Path()))
-			hub.Scope().SetUser(sentry.User{
+		defer span.Finish()
+
+		sentry.ConfigureScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			scope.SetUser(sentry.User{
 				ID: userId,
-				//	IPAddress: m.GetLocalIP(),
+				//IPAddress: h.GetLocalIP(),
 			})
-			hub.Scope().SetLevel(sentry.LevelError)
-			hub.Scope().SetRequest(ctx.Request())
-			sentry.Logger.SetFlags(time.Now().Minute())
-			sentry.Logger.SetPrefix("[sentry SDK]")
-		}
+			//	scope.AddBreadcrumb(&sentry.Breadcrumb{Message: "auth", Type: "info", Level: "error", Data: map[string]interface{}{"response": data}}, 1)
+		})
+
+		sentry.Logger.SetFlags(time.Now().Minute())
+		sentry.Logger.SetPrefix("[sentry SDK]")
+
 	}
 }
