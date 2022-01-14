@@ -56,7 +56,6 @@ func MiddlewareSentry() {
 			})
 			hub.Scope().SetLevel(sentry.LevelError)
 			hub.Scope().SetRequest(ctx.Request())
-
 			sentry.Logger.SetFlags(time.Now().Minute())
 			sentry.Logger.SetPrefix("[sentry SDK]")
 		}
