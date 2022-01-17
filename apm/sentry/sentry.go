@@ -5,11 +5,16 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/MrAndreID/gohelpers"
 	"github.com/getsentry/sentry-go"
 	goSentry "github.com/getsentry/sentry-go"
 	sentryecho "github.com/getsentry/sentry-go/echo"
 	"github.com/labstack/echo/v4"
 	logDump "github.com/sirupsen/logrus"
+)
+
+var (
+	userId = ""
 )
 
 func New(config goSentry.ClientOptions) {
@@ -72,4 +77,27 @@ func MiddlewareSentry(ctx echo.Context) {
 		sentry.Logger.SetPrefix("[sentry SDK]")
 
 	}
+}
+
+func SentryLog(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
+	if c != nil {
+		if c.Get("UserId") != nil {
+			userId = fmt.Sprintf("%v", fmt.Sprintf("%v", c.Get("UserId")))
+		} else {
+			userId = fmt.Sprintf("%v", c.Get("RequestID"))
+		}
+
+		if hub := sentryecho.GetHubFromContext(c); hub != nil {
+			hub := sentryecho.GetHubFromContext(c)
+
+			dataBreadcumb := breadcumb
+
+			dataBreadcumb.Data = data
+			dataBreadcumb.Message = fmt.Sprintf("%v", message)
+
+			hub.CaptureMessage(string(gohelpers.JSONEncode(data)))
+			sentry.AddBreadcrumb(&dataBreadcumb)
+		}
+	}
+
 }

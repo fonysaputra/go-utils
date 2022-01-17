@@ -3,6 +3,7 @@ module github.com/fonysaputra/go-utils
 go 1.16
 
 require (
+	github.com/MrAndreID/gohelpers v1.5.0 // indirect
 	github.com/getsentry/sentry-go v0.12.0
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/labstack/echo/v4 v4.6.3
