@@ -39,34 +39,34 @@ func InitBodyDumpLog() (err error) {
 	return
 }
 
-func Info(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
+func Info(c echo.Context, breadcumb *sentry.Breadcrumb, data logDump.Fields, message interface{}) {
 	logDump.WithFields(data).Info(message)
 
-	sentryUmi.SentryLog(c, breadcumb, data, message)
+	sentryUmi.SentryLog(c, &breadcumb, data, message)
 
 }
 
-func Error(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
+func Error(c echo.Context, breadcumb *sentry.Breadcrumb, data logDump.Fields, message interface{}) {
 	logDump.WithFields(data).Error(message)
-	sentryUmi.SentryLog(c, breadcumb, data, message)
+	sentryUmi.SentryLog(c, &breadcumb, data, message)
 
 }
 
-func Fatal(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
+func Fatal(c echo.Context, breadcumb *sentry.Breadcrumb, data logDump.Fields, message interface{}) {
 	logDump.WithFields(data).Fatal(message)
-	sentryUmi.SentryLog(c, breadcumb, data, message)
+	sentryUmi.SentryLog(c, &breadcumb, data, message)
 
 }
 
-func Debug(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
+func Debug(c echo.Context, breadcumb *sentry.Breadcrumb, data logDump.Fields, message interface{}) {
 	logDump.WithFields(data).Debug(message)
-	sentryUmi.SentryLog(c, breadcumb, data, message)
+	sentryUmi.SentryLog(c, &breadcumb, data, message)
 
 }
 
-func Panic(c echo.Context, breadcumb sentry.Breadcrumb, data logDump.Fields, message interface{}) {
+func Panic(c echo.Context, breadcumb *sentry.Breadcrumb, data logDump.Fields, message interface{}) {
 
 	logDump.WithFields(data).Panic(message)
-	sentryUmi.SentryLog(c, breadcumb, data, message)
+	sentryUmi.SentryLog(c, &breadcumb, data, message)
 
 }
